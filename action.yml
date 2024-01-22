@@ -8,6 +8,8 @@ inputs:
 outputs:
   time: # id of output
     description: 'The time we greeted you'
+  dir: # id of output
+    description: 'Dir name'
 runs:
   using: 'node20'
   main: 'dist/index.js'
