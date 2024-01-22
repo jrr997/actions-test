@@ -7,7 +7,7 @@ jobs:
     steps:
       - name: Test Fetching
         id: hello
-        uses: jrr997/actons-test@v1.1
+        uses: jrr997/actions-test@v1.1
         with:
           who-to-greet: 'hhhhjjj'
       # Use the output from the `hello` step
