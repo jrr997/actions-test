@@ -11,9 +11,9 @@ jobs:
     name: A job to update the docs
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-        ref: output
+          ref: "output"
       - name: Fetch Docs
         id: hello
         uses: jrr997/actions-test@dev
