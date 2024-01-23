@@ -1,6 +1,7 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
 const fs = require('fs');
+const path = require('path');
 import { Octokit } from '@octokit/rest';
 import { graphql } from '@octokit/graphql';
 
@@ -143,6 +144,8 @@ async function Main() {
 }
 
 // Main();
-fs.writeFileSync('rawText.json', 'test pushing', 'utf8');
+
+const filePath = path.join(process.env.GITHUB_WORKSPACE, 'rawText.json');
+fs.writeFileSync(filePath, 'test pushing', 'utf8');
 const time = new Date().toTimeString();
 core.setOutput("time", time);

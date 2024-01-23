@@ -29035,6 +29035,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __nccwpck_require__(1144);
 const github = __nccwpck_require__(1568);
 const fs = __nccwpck_require__(7147);
+const path = __nccwpck_require__(1017);
 const rest_1 = __nccwpck_require__(5804);
 const graphql_1 = __nccwpck_require__(6867);
 var DocsLang;
@@ -29159,7 +29160,8 @@ function Main() {
     });
 }
 // Main();
-fs.writeFileSync('rawText.json', 'test pushing', 'utf8');
+const filePath = path.join(process.env.GITHUB_WORKSPACE, 'rawText.json');
+fs.writeFileSync(filePath, 'test pushing', 'utf8');
 const time = new Date().toTimeString();
 core.setOutput("time", time);
 
