@@ -16,7 +16,7 @@ jobs:
           ref: "output"
           
       - name: Fetch Docs
-        uses: jrr997/actions-test@dev
+        run: ./dist/index.js
         with:
           ref: "master"
 
