@@ -29037,13 +29037,16 @@ const github = __nccwpck_require__(1568);
 const fs = __nccwpck_require__(7147);
 const path = __nccwpck_require__(1017);
 const rest_1 = __nccwpck_require__(5804);
+const graphql_1 = __nccwpck_require__(6867);
 var DocsLang;
 (function (DocsLang) {
     DocsLang["ZH"] = "zh-CN";
     DocsLang["EN"] = "en-US";
 })(DocsLang || (DocsLang = {}));
 ;
-const excludeDirs = (/* unused pure expression or super */ null && (['__tests__', '_util', 'back-top', 'col', 'locale', 'row', 'style', 'theme', 'version']));
+const splitText = '____';
+const recoverText = (text) => text.replaceAll(splitText, '-');
+const excludeDirs = ['__tests__', '_util', 'back-top', 'col', 'locale', 'row', 'style', 'theme', 'version'];
 const ANTD_GITHUB = {
     OWNER: 'ant-design',
     REPO: 'ant-design',
@@ -29084,8 +29087,40 @@ const getComponentDirInfos = (token, ref) => __awaiter(void 0, void 0, void 0, f
         return [];
     }
 });
+const getComponentsDocText = (componentNames, token, ref) => __awaiter(void 0, void 0, void 0, function* () {
+    const queries = componentNames === null || componentNames === void 0 ? void 0 : componentNames.map(componentName => createQuery(componentName, ref));
+    const { repository } = yield (0, graphql_1.graphql)(`
+query{
+  repository(owner: "${ANTD_GITHUB.OWNER}", name: "${ANTD_GITHUB.REPO}") {
+    ${queries.join('\n')}
+  }
+}
+    `, {
+        headers: {
+            authorization: `token ${token}`,
+        },
+    });
+    return repository;
+});
+const createQuery = (componentName, ref) => {
+    const zhName = `${componentName.replaceAll('-', splitText)}zh`;
+    const enName = `${componentName.replaceAll('-', splitText)}en`;
+    return `
+      ${zhName}: object(expression: "${ref}:components/${componentName}/${ANTD_GITHUB.ZH_DOC_NAME}") {
+        ... on Blob {
+          text
+        }
+      }
+      ${enName}: object(expression: "${ref}:components/${componentName}/${ANTD_GITHUB.EN_DOC_NAME}") {
+        ... on Blob {
+          text
+        }
+      }
+  `;
+};
 const ref = core.getInput("ref");
 function Main() {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         if (!ref) {
             console.log('ref is required');
@@ -29096,35 +29131,24 @@ function Main() {
             return;
         }
         let dirInfos = yield getComponentDirInfos(token, ref);
-        const zhPromises = dirInfos === null || dirInfos === void 0 ? void 0 : dirInfos.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.ZH_DOC_NAME}`, token, ref));
-        const enPromises = dirInfos === null || dirInfos === void 0 ? void 0 : dirInfos.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.EN_DOC_NAME}`, token, ref));
-        try {
-            const res = yield Promise.allSettled([...zhPromises, ...enPromises]);
-            let docsMap = {};
-            res.filter((item) => item.status !== 'fulfilled').forEach(item => {
-                console.log('fail: ', item);
-            });
-            res.filter((item) => item.status === 'fulfilled')
-                .forEach((item) => {
-                const { path, encoding, content, name } = item.value.data;
-                const parsedContent = Buffer.from(content, encoding).toString();
-                const componentName = path.split('/')[1];
-                const lang = name.split('.')[1];
-                if (!docsMap[componentName]) {
-                    docsMap[componentName] = {};
-                }
-                docsMap[componentName][lang] = parsedContent;
-            });
-            const filePath = path.join(process.env.GITHUB_WORKSPACE, 'docsMap.json');
-            fs.writeFileSync(filePath, JSON.stringify(docsMap), 'utf8');
-            const jsonString = JSON.stringify(docsMap);
-            fs.writeFileSync('docsMap.json', jsonString, 'utf8');
-            const time = new Date().toTimeString();
-            core.setOutput("time", time);
+        const componentNames = dirInfos === null || dirInfos === void 0 ? void 0 : dirInfos.map(dirInfo => dirInfo.name).filter(name => !excludeDirs.includes(name));
+        const componentDocsText = yield getComponentsDocText(componentNames, token, ref);
+        let docsMap = {};
+        for (let key in componentDocsText) {
+            const componentName = recoverText(key.slice(0, key.length - 2));
+            const lang = key.slice(key.length - 2) === 'zh' ? DocsLang.ZH : DocsLang.EN;
+            const text = (_a = componentDocsText[key]) === null || _a === void 0 ? void 0 : _a.text;
+            if (!docsMap[componentName]) {
+                docsMap[componentName] = {};
+            }
+            docsMap[componentName][lang] = text;
         }
-        catch (e) {
-            console.log(e);
-        }
+        console.log('======= docsMap ========');
+        console.log(docsMap);
+        const filePath = path.join(process.env.GITHUB_WORKSPACE, 'docsMap.json');
+        fs.writeFileSync(filePath, JSON.stringify(docsMap), 'utf8');
+        const jsonString = JSON.stringify(docsMap);
+        fs.writeFileSync('docsMap.json', jsonString, 'utf8');
     });
 }
 Main();

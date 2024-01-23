@@ -3,11 +3,17 @@ const github = require("@actions/github");
 const fs = require('fs');
 const path = require('path');
 import { Octokit } from '@octokit/rest';
+import { graphql } from '@octokit/graphql';
+
 
 enum DocsLang {
   ZH = 'zh-CN',
   EN = 'en-US',
 };
+
+const splitText = '____';
+
+const recoverText = (text: string) => text.replaceAll(splitText, '-');
 
 const excludeDirs = ['__tests__', '_util', 'back-top', 'col', 'locale', 'row', 'style', 'theme', 'version'];
 
@@ -54,6 +60,42 @@ const getComponentDirInfos = async (token: string, ref: string) => {
   }
 };
 
+const getComponentsDocText = async (componentNames: string[], token: string, ref: string) => {
+  const queries = componentNames?.map(componentName => createQuery(componentName, ref));
+  const { repository } = await graphql<{ repository: Record<string, null | { text: string }> }>(
+    `
+query{
+  repository(owner: "${ANTD_GITHUB.OWNER}", name: "${ANTD_GITHUB.REPO}") {
+    ${queries.join('\n')}
+  }
+}
+    `,
+    {
+      headers: {
+        authorization: `token ${token}`,
+      },
+    }
+  );
+  return repository;
+};
+
+const createQuery = (componentName: string, ref: string) => {
+  const zhName = `${componentName.replaceAll('-', splitText)}zh`;
+  const enName = `${componentName.replaceAll('-', splitText)}en`;
+  return `
+      ${zhName}: object(expression: "${ref}:components/${componentName}/${ANTD_GITHUB.ZH_DOC_NAME}") {
+        ... on Blob {
+          text
+        }
+      }
+      ${enName}: object(expression: "${ref}:components/${componentName}/${ANTD_GITHUB.EN_DOC_NAME}") {
+        ... on Blob {
+          text
+        }
+      }
+  `;
+};
+
 const ref = core.getInput("ref")
 
 async function Main() {
@@ -67,44 +109,69 @@ async function Main() {
   }
   let dirInfos = await getComponentDirInfos(token, ref);
 
-  const zhPromises = dirInfos
-    ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.ZH_DOC_NAME}`, token, ref));
-  const enPromises = dirInfos
+  const componentNames = dirInfos?.map(dirInfo => dirInfo.name).filter(name => !excludeDirs.includes(name));
+  const componentDocsText = await getComponentsDocText(componentNames!, token, ref);
 
-    ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.EN_DOC_NAME}`, token, ref));
-  try {
-    const res = await Promise.allSettled([...zhPromises!, ...enPromises!]);
-    let docsMap: any = {};
+  let docsMap: any = {};
+  for (let key in componentDocsText) {
+    const componentName = recoverText(key.slice(0, key.length - 2));
 
-    res.filter((item) => item.status !== 'fulfilled').forEach(item => {
-      console.log('fail: ', item);
-    });
-
-    res.filter((item) => item.status === 'fulfilled')
-      .forEach((item: any) => {
-        const { path, encoding, content, name } = item.value.data;
-        const parsedContent = Buffer.from(content, encoding).toString();
-        const componentName = path.split('/')[1];
-        const lang = name.split('.')[1] as DocsLang;
-        if (!docsMap[componentName]) {
-          docsMap[componentName] = {};
-        }
-        docsMap[componentName][lang] = parsedContent;
-      });
-
-    const filePath = path.join(process.env.GITHUB_WORKSPACE, 'docsMap.json');
-    fs.writeFileSync(filePath, JSON.stringify(docsMap), 'utf8');
-
-    const jsonString = JSON.stringify(docsMap);
-
-    fs.writeFileSync('docsMap.json', jsonString, 'utf8');
-
-    const time = new Date().toTimeString();
-    core.setOutput("time", time);
-
-  } catch (e) {
-    console.log(e);
+    const lang = key.slice(key.length - 2) === 'zh' ? DocsLang.ZH : DocsLang.EN;
+    const text = componentDocsText[key]?.text;
+    if (!docsMap[componentName]) {
+      docsMap[componentName] = {};
+    }
+    docsMap[componentName][lang] = text;
   }
+
+  console.log('======= docsMap ========');
+  console.log(docsMap);
+
+  const filePath = path.join(process.env.GITHUB_WORKSPACE, 'docsMap.json');
+  fs.writeFileSync(filePath, JSON.stringify(docsMap), 'utf8');
+
+  const jsonString = JSON.stringify(docsMap);
+
+  fs.writeFileSync('docsMap.json', jsonString, 'utf8');
+  
+  // const zhPromises = dirInfos
+  //   ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.ZH_DOC_NAME}`, token, ref));
+  // const enPromises = dirInfos
+
+  //   ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.EN_DOC_NAME}`, token, ref));
+  // try {
+  //   const res = await Promise.allSettled([...zhPromises!, ...enPromises!]);
+  //   let docsMap: any = {};
+
+  //   res.filter((item) => item.status !== 'fulfilled').forEach(item => {
+  //     console.log('fail: ', item);
+  //   });
+
+  //   res.filter((item) => item.status === 'fulfilled')
+  //     .forEach((item: any) => {
+  //       const { path, encoding, content, name } = item.value.data;
+  //       const parsedContent = Buffer.from(content, encoding).toString();
+  //       const componentName = path.split('/')[1];
+  //       const lang = name.split('.')[1] as DocsLang;
+  //       if (!docsMap[componentName]) {
+  //         docsMap[componentName] = {};
+  //       }
+  //       docsMap[componentName][lang] = parsedContent;
+  //     });
+
+  //   const filePath = path.join(process.env.GITHUB_WORKSPACE, 'docsMap.json');
+  //   fs.writeFileSync(filePath, JSON.stringify(docsMap), 'utf8');
+
+  //   const jsonString = JSON.stringify(docsMap);
+
+  //   fs.writeFileSync('docsMap.json', jsonString, 'utf8');
+
+  //   const time = new Date().toTimeString();
+  //   core.setOutput("time", time);
+
+  // } catch (e) {
+  //   console.log(e);
+  // }
 
 }
 
