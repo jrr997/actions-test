@@ -29017,6 +29017,128 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 8011:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core = __nccwpck_require__(1144);
+const github = __nccwpck_require__(1568);
+const fs = __nccwpck_require__(7147);
+const rest_1 = __nccwpck_require__(5804);
+const graphql_1 = __nccwpck_require__(6867);
+var DocsLang;
+(function (DocsLang) {
+    DocsLang["ZH"] = "zh-CN";
+    DocsLang["EN"] = "en-US";
+})(DocsLang || (DocsLang = {}));
+;
+const excludeDirs = ['__tests__', '_util', 'back-top', 'col', 'locale', 'row', 'style', 'theme', 'version'];
+const ANTD_GITHUB = {
+    OWNER: 'ant-design',
+    REPO: 'ant-design',
+    EN_DOC_NAME: 'index.en-US.md',
+    ZH_DOC_NAME: 'index.zh-CN.md',
+};
+const splitText = '____';
+const recoverText = (text) => text.replaceAll(splitText, '-');
+// Access GITHUB_TOKEN
+const token = process.env.GITHUB_TOKEN;
+const getAntdContent = (path, token, ref) => new rest_1.Octokit({ auth: token }).rest.repos.getContent({
+    // owner: ANTD_GITHUB.OWNER,
+    owner: "ant-design",
+    repo: "ant-design",
+    path,
+    ref,
+    headers: {
+        "X-GitHub-Api-Version": "2022-11-28",
+    },
+});
+const getComponentDirInfos = (token, ref) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const response = yield getAntdContent('/components', token, ref);
+        const { data } = response;
+        if (Array.isArray(data)) {
+            const componentDirInfos = data.filter(item => item.type === 'dir');
+            return componentDirInfos;
+        }
+    }
+    catch (e) {
+        console.error('retrieving component dirs failed: ', e);
+        if (e.status === 401) {
+            console.log('github token invalid');
+        }
+        else {
+            console.log('e.response.data.message');
+        }
+        return [];
+    }
+});
+const getComponentsDocText = (componentNames, token, ref) => __awaiter(void 0, void 0, void 0, function* () {
+    const queries = componentNames === null || componentNames === void 0 ? void 0 : componentNames.map(componentName => createQuery(componentName, ref));
+    const { repository } = yield (0, graphql_1.graphql)(`
+query{
+  repository(owner: "${ANTD_GITHUB.OWNER}", name: "${ANTD_GITHUB.REPO}") {
+    ${queries.join('\n')}
+  }
+}
+    `, {
+        headers: {
+            authorization: `token ${token}`,
+        },
+    });
+    return repository;
+});
+const createQuery = (componentName, ref) => {
+    const zhName = `${componentName.replaceAll('-', splitText)}zh`;
+    const enName = `${componentName.replaceAll('-', splitText)}en`;
+    return `
+      ${zhName}: object(expression: "${ref}:components/${componentName}/${ANTD_GITHUB.ZH_DOC_NAME}") {
+        ... on Blob {
+          text
+        }
+      }
+      ${enName}: object(expression: "${ref}:components/${componentName}/${ANTD_GITHUB.EN_DOC_NAME}") {
+        ... on Blob {
+          text
+        }
+      }
+  `;
+};
+const ref = core.getInput("ref");
+function Main() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!ref) {
+            console.log('ref is required');
+            return;
+        }
+        let dirInfos = yield getComponentDirInfos(token, ref);
+        const componentNames = dirInfos === null || dirInfos === void 0 ? void 0 : dirInfos.map(dirInfo => dirInfo.name).filter(name => !excludeDirs.includes(name));
+        const componentDocsText = yield getComponentsDocText(componentNames, token, ref);
+        // 将对象转换为 JSON 字符串
+        const jsonString = JSON.stringify(componentDocsText);
+        // 将 JSON 字符串写入文件
+        fs.writeFileSync('rawText.json', jsonString, 'utf8');
+        core.setOutput("docsMap", '123');
+        const time = new Date().toTimeString();
+        core.setOutput("time", time);
+    });
+}
+Main();
+
+
+/***/ }),
+
 /***/ 9491:
 /***/ ((module) => {
 
@@ -30898,52 +31020,12 @@ module.exports = parseParams
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
-"use strict";
-var exports = __webpack_exports__;
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __nccwpck_require__(1144);
-const github = __nccwpck_require__(1568);
-const rest_1 = __nccwpck_require__(5804);
-// Access GITHUB_TOKEN
-const githubToken = process.env.GITHUB_TOKEN;
-const getAntdContent = (path, token, ref) => new rest_1.Octokit({ auth: token }).rest.repos.getContent({
-    // owner: ANTD_GITHUB.OWNER,
-    owner: "ant-design",
-    repo: "ant-design",
-    path,
-    ref,
-    headers: {
-        "X-GitHub-Api-Version": "2022-11-28",
-    },
-});
-try {
-    // `who-to-greet` input defined in action metadata file
-    const nameToGreet = core.getInput("who-to-greet");
-    console.log(`Hello ${nameToGreet}!`);
-    const time = new Date().toTimeString();
-    getAntdContent('/components', githubToken, 'master').then(response => {
-        console.log(response);
-        const { data } = response;
-        if (Array.isArray(data)) {
-            const componentDirInfos = data.filter(item => item.type === 'dir').map(item => item.name);
-            core.setOutput("dir", componentDirInfos === null || componentDirInfos === void 0 ? void 0 : componentDirInfos[0]);
-        }
-    });
-    core.setOutput("time", time);
-    // Get the JSON webhook payload for the event that triggered the workflow
-    // const payload = JSON.stringify(github.context.payload, undefined, 2);
-    // console.log(`The event payload: ${payload}`);
-}
-catch (error) {
-    core.setFailed(error.message);
-}
-
-})();
-
-module.exports = __webpack_exports__;
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __nccwpck_require__(8011);
+/******/ 	module.exports = __webpack_exports__;
+/******/ 	
 /******/ })()
 ;

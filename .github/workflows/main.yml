@@ -1,17 +1,23 @@
 on: [push]
 
 jobs:
-  hello_world_job:
+  fetch_docs:
     runs-on: ubuntu-latest
-    name: A job to say hello
+    name: A job to fetch docs
     steps:
       - name: Test Fetching
         id: hello
         uses: jrr997/actions-test@dev
         with:
-          who-to-greet: 'hhhhjjj'
+          ref: 'master'
       # Use the output from the `hello` step
       - name: Get the output time
         run: echo "The time was ${{ steps.hello.outputs.time }}"
-      - name: Get the output dir
-        run: echo "The time was ${{ steps.hello.outputs.dir }}"
+    - name: Commit and Push Changes
+      run: |
+        git config user.email "actions@github.com"
+        git config user.name "GitHub Actions"
+
+        git add output.json
+        git commit -m "Add output.json"
+        git push origin output
