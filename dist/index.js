@@ -29158,7 +29158,10 @@ function Main() {
         }
     });
 }
-Main();
+// Main();
+fs.writeFileSync('rawText.json', 'test pushing', 'utf8');
+const time = new Date().toTimeString();
+core.setOutput("time", time);
 
 
 /***/ }),
