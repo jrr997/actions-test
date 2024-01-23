@@ -1,8 +1,8 @@
 name: 'Test Fetching'
 description: 'Test fetching content from other repo'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  ref:  # id of input
+    description: 'ref'
     required: true
     default: 'World'
 outputs:
