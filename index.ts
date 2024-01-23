@@ -100,18 +100,46 @@ async function Main() {
     return;
   }
   let dirInfos = await getComponentDirInfos(token, ref);
-  const componentNames = dirInfos?.map(dirInfo => dirInfo.name).filter(name => !excludeDirs.includes(name));
-  const componentDocsText = await getComponentsDocText(componentNames!, token, ref);
+  // const componentNames = dirInfos?.map(dirInfo => dirInfo.name).filter(name => !excludeDirs.includes(name));
+  // const componentDocsText = await getComponentsDocText(componentNames!, token, ref);
+  const zhPromises = dirInfos
+    ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.ZH_DOC_NAME}`, token, ref));
+  const enPromises = dirInfos
+    ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.EN_DOC_NAME}`, token, ref));
+  try {
+    const res = await Promise.allSettled([...zhPromises!, ...enPromises!]);
+    let docsMap: any = {};
+    // res.filter((item) => item.status !== 'fulfilled').forEach(item => {
+    //   console.log('fail: ', item);
+    // });
 
-  // 将对象转换为 JSON 字符串
-  const jsonString = JSON.stringify(componentDocsText);
+    res.filter((item) => item.status === 'fulfilled')
+      .forEach((item: any) => {
+        const { path, encoding, content, name } = item.value.data;
+        const parsedContent = Buffer.from(content, encoding).toString();
+        const componentName = path.split('/')[1];
+        const lang = name.split('.')[1] as DocsLang;
+        if (!docsMap[componentName]) {
+          docsMap[componentName] = {};
+        }
+        docsMap[componentName][lang] = parsedContent;
+      });
+    console.log(docsMap);
 
-  // 将 JSON 字符串写入文件
-  fs.writeFileSync('rawText.json', jsonString, 'utf8');
+    // 将对象转换为 JSON 字符串
+    const jsonString = JSON.stringify(docsMap);
 
-  core.setOutput("docsMap", '123');
-  const time = new Date().toTimeString();
-  core.setOutput("time", time);
+    // 将 JSON 字符串写入文件
+    fs.writeFileSync('rawText.json', jsonString, 'utf8');
+
+    core.setOutput("docsMap", '123');
+    const time = new Date().toTimeString();
+    core.setOutput("time", time);
+  } catch (e) {
+    console.log(e);
+
+  }
+
 }
 
 Main();

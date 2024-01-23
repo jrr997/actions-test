@@ -29043,7 +29043,7 @@ var DocsLang;
     DocsLang["EN"] = "en-US";
 })(DocsLang || (DocsLang = {}));
 ;
-const excludeDirs = ['__tests__', '_util', 'back-top', 'col', 'locale', 'row', 'style', 'theme', 'version'];
+const excludeDirs = (/* unused pure expression or super */ null && (['__tests__', '_util', 'back-top', 'col', 'locale', 'row', 'style', 'theme', 'version']));
 const ANTD_GITHUB = {
     OWNER: 'jrr997',
     REPO: 'ant-design',
@@ -29123,15 +29123,39 @@ function Main() {
             return;
         }
         let dirInfos = yield getComponentDirInfos(token, ref);
-        const componentNames = dirInfos === null || dirInfos === void 0 ? void 0 : dirInfos.map(dirInfo => dirInfo.name).filter(name => !excludeDirs.includes(name));
-        const componentDocsText = yield getComponentsDocText(componentNames, token, ref);
-        // 将对象转换为 JSON 字符串
-        const jsonString = JSON.stringify(componentDocsText);
-        // 将 JSON 字符串写入文件
-        fs.writeFileSync('rawText.json', jsonString, 'utf8');
-        core.setOutput("docsMap", '123');
-        const time = new Date().toTimeString();
-        core.setOutput("time", time);
+        // const componentNames = dirInfos?.map(dirInfo => dirInfo.name).filter(name => !excludeDirs.includes(name));
+        // const componentDocsText = await getComponentsDocText(componentNames!, token, ref);
+        const zhPromises = dirInfos === null || dirInfos === void 0 ? void 0 : dirInfos.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.ZH_DOC_NAME}`, token, ref));
+        const enPromises = dirInfos === null || dirInfos === void 0 ? void 0 : dirInfos.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.EN_DOC_NAME}`, token, ref));
+        try {
+            const res = yield Promise.allSettled([...zhPromises, ...enPromises]);
+            let docsMap = {};
+            // res.filter((item) => item.status !== 'fulfilled').forEach(item => {
+            //   console.log('fail: ', item);
+            // });
+            res.filter((item) => item.status === 'fulfilled')
+                .forEach((item) => {
+                const { path, encoding, content, name } = item.value.data;
+                const parsedContent = Buffer.from(content, encoding).toString();
+                const componentName = path.split('/')[1];
+                const lang = name.split('.')[1];
+                if (!docsMap[componentName]) {
+                    docsMap[componentName] = {};
+                }
+                docsMap[componentName][lang] = parsedContent;
+            });
+            console.log(docsMap);
+            // 将对象转换为 JSON 字符串
+            const jsonString = JSON.stringify(docsMap);
+            // 将 JSON 字符串写入文件
+            fs.writeFileSync('rawText.json', jsonString, 'utf8');
+            core.setOutput("docsMap", '123');
+            const time = new Date().toTimeString();
+            core.setOutput("time", time);
+        }
+        catch (e) {
+            console.log(e);
+        }
     });
 }
 Main();
