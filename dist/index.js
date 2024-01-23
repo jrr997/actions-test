@@ -29051,7 +29051,8 @@ const ANTD_GITHUB = {
     ZH_DOC_NAME: 'index.zh-CN.md',
 };
 // Access GITHUB_TOKEN
-const token = process.env.GITHUB_TOKEN;
+// const token = process.env.GITHUB_TOKEN!;
+const token = core.getInput("token");
 console.log('token: ', token);
 const getAntdContent = (path, token, ref) => new rest_1.Octokit({ auth: token }).rest.repos.getContent({
     // owner: ANTD_GITHUB.OWNER,
@@ -29088,6 +29089,10 @@ function Main() {
     return __awaiter(this, void 0, void 0, function* () {
         if (!ref) {
             console.log('ref is required');
+            return;
+        }
+        if (!token) {
+            console.log('token is required');
             return;
         }
         let dirInfos = yield getComponentDirInfos(token, ref);

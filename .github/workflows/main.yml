@@ -16,11 +16,10 @@ jobs:
           ref: "output"
           
       - name: Fetch Docs
-        run: |
-          node ./dist/index.js
+        uses: jrr997/actions-test@dev
         with:
           ref: "master"
-
+          token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
