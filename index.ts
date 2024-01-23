@@ -59,7 +59,7 @@ async function Main() {
     console.log('ref is required');
     return;
   }
-  
+
   let dirInfos = await getComponentDirInfos(token, ref);
 
   const zhPromises = dirInfos
@@ -84,7 +84,7 @@ async function Main() {
       });
 
     const filePath = path.join(process.env.GITHUB_WORKSPACE, 'docsMap.json');
-    fs.writeFileSync(filePath, 'test pushing', 'utf8');
+    fs.writeFileSync(filePath, JSON.stringify(docsMap) , 'utf8');
 
     const jsonString = JSON.stringify(docsMap);
 
