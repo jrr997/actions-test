@@ -16,7 +16,8 @@ jobs:
           ref: "output"
           
       - name: Fetch Docs
-        run: ./dist/index.js
+        run: |
+          node ./dist/index.js
         with:
           ref: "master"
 
