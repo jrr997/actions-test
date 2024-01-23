@@ -29052,6 +29052,7 @@ const ANTD_GITHUB = {
 };
 // Access GITHUB_TOKEN
 const token = process.env.GITHUB_TOKEN;
+console.log('token: ', token);
 const getAntdContent = (path, token, ref) => new rest_1.Octokit({ auth: token }).rest.repos.getContent({
     // owner: ANTD_GITHUB.OWNER,
     owner: "ant-design",

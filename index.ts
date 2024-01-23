@@ -20,7 +20,7 @@ const ANTD_GITHUB = {
 
 // Access GITHUB_TOKEN
 const token = process.env.GITHUB_TOKEN!;
-
+console.log('token: ', token);
 const getAntdContent = (path: string, token: string, ref?: string) =>
   new Octokit({ auth: token }).rest.repos.getContent({
     // owner: ANTD_GITHUB.OWNER,
@@ -74,7 +74,7 @@ async function Main() {
     res.filter((item) => item.status !== 'fulfilled').forEach(item => {
       console.log('fail: ', item);
     });
-    
+
     res.filter((item) => item.status === 'fulfilled')
       .forEach((item: any) => {
         const { path, encoding, content, name } = item.value.data;
