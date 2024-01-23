@@ -71,6 +71,10 @@ async function Main() {
     const res = await Promise.allSettled([...zhPromises!, ...enPromises!]);
     let docsMap: any = {};
 
+    res.filter((item) => item.status !== 'fulfilled').forEach(item => {
+      console.log('fail: ', item);
+    });
+    
     res.filter((item) => item.status === 'fulfilled')
       .forEach((item: any) => {
         const { path, encoding, content, name } = item.value.data;

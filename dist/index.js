@@ -29095,6 +29095,9 @@ function Main() {
         try {
             const res = yield Promise.allSettled([...zhPromises, ...enPromises]);
             let docsMap = {};
+            res.filter((item) => item.status !== 'fulfilled').forEach(item => {
+                console.log('fail: ', item);
+            });
             res.filter((item) => item.status === 'fulfilled')
                 .forEach((item) => {
                 const { path, encoding, content, name } = item.value.data;
@@ -29107,7 +29110,7 @@ function Main() {
                 docsMap[componentName][lang] = parsedContent;
             });
             const filePath = path.join(process.env.GITHUB_WORKSPACE, 'docsMap.json');
-            fs.writeFileSync(filePath, 'test pushing', 'utf8');
+            fs.writeFileSync(filePath, JSON.stringify(docsMap), 'utf8');
             const jsonString = JSON.stringify(docsMap);
             fs.writeFileSync('docsMap.json', jsonString, 'utf8');
             const time = new Date().toTimeString();

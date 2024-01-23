@@ -10,18 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     name: A job to update the docs
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: "output"
           
       - name: Fetch Docs
-        id: hello
         uses: jrr997/actions-test@dev
         with:
           ref: "master"
 
-      - name: Deploy 🚀
+      - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: . # The folder the action should deploy.
