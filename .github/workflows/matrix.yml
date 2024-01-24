@@ -1,4 +1,4 @@
-name: Call a reusable workflow
+name: Update Docs
 on:
   workflow_dispatch:
 
@@ -6,16 +6,23 @@ on:
     - cron: '0 * * * *'
 
 jobs:
-  example_matrix:
-    strategy:
-      matrix:
-        from: ["4.x-stable", "master"]
-        to: ["output4", "output"]
+  update_docs_v4:
     uses: jrr997/actions-test/.github/workflows/reusable.yml@dev
     permissions:
       contents: write
     with:
-      from: ${{ matrix.from }}
-      to: ${{ matrix.to }}
+      from: 4.x-stable
+      to: output4
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  update_docs_v5:
+    uses: jrr997/actions-test/.github/workflows/reusable.yml@dev
+    permissions:
+      contents: write
+    with:
+      from: master
+      to: output
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
