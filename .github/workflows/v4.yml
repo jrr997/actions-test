@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: "output"
+          ref: "output4"
           
       - name: Fetch docs
         id: fetch_docs
