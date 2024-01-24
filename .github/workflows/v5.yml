@@ -34,23 +34,25 @@ jobs:
             exit 1
           fi
 
-      - name: Diff
-        id: diff
-        run: |
-            pwd
-            touch docsMap.json
-            ls -al
-            cmp --silent docsMap.json ./dist/docsMap.json
-            echo "diff_result=${?}" >> $GITHUB_OUTPUT
+      # - name: Diff
+      #   id: diff
+      #   run: |
+      #       pwd
+      #       touch docsMap.json
+      #       ls -al
+      #       cmp --silent docsMap.json ./dist/docsMap.json
+      #       echo "diff_result=${?}" >> $GITHUB_OUTPUT
 
-      - name: Exit
-        if: steps.diff.outputs.diff_result == '0'
-        run: 
-          echo "Docs is the same as last time."
-          exit 1
+      # - name: Exit
+      #   if: steps.diff.outputs.diff_result == '0'
+      #   run: 
+      #     echo "Docs is the same as last time."
+      #     exit 1
 
       - name: Before Deploy
-        run: mv dist/docsMap.json docsMap.json
+        run: |
+        mv dist/docsMap.json docsMap.json
+        rmdir dist
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
