@@ -28809,7 +28809,6 @@ const utils_1 = __nccwpck_require__(1314);
 const fs = __nccwpck_require__(7147);
 const path = __nccwpck_require__(1017);
 const core = __nccwpck_require__(2186);
-const child_process_1 = __nccwpck_require__(2081);
 const recoverText = (text) => text.replaceAll(config_1.splitText, '-');
 const token = core.getInput("token");
 const ref = core.getInput("ref");
@@ -28844,21 +28843,8 @@ function Main() {
         const count = Object.keys(docsMap).length;
         core.setOutput("count", count);
         // write docsMap.json
-        const dirPath = path.join(process.env.GITHUB_WORKSPACE, 'dist');
-        fs.mkdirSync(dirPath);
-        const filePath = path.join(dirPath, 'docsMap.json');
+        const filePath = path.join(process.env.GITHUB_WORKSPACE, 'docsMap.json');
         fs.writeFileSync(filePath, JSON.stringify(docsMap), 'utf8');
-        console.log(filePath);
-        const child = (0, child_process_1.spawn)('ls', ['-al']);
-        child.stdout.on('data', (data) => {
-            console.log(`Command output: ${data}`);
-        });
-        child.stderr.on('data', (data) => {
-            console.error(`Command error: ${data}`);
-        });
-        child.on('close', (code) => {
-            console.log(`Command exited with code ${code}`);
-        });
     });
 }
 if (ref && token) {
@@ -28975,14 +28961,6 @@ module.exports = require("async_hooks");
 
 "use strict";
 module.exports = require("buffer");
-
-/***/ }),
-
-/***/ 2081:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("child_process");
 
 /***/ }),
 
