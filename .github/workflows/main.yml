@@ -1,6 +1,6 @@
 on:
   workflow_dispatch:
-  
+
   schedule:
     - cron: '0 * * * *'
 
@@ -35,4 +35,4 @@ jobs:
         with:
           folder: ./dist # The folder the action should deploy.
           branch: output
-        if: steps.diff.outputs.diff_result == 0
+        if: steps.diff.outputs.diff_result !== 0
