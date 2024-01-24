@@ -9,9 +9,6 @@ const recoverText = (text: string) => text.replaceAll(splitText, '-');
 const token = core.getInput("token")
 const ref = core.getInput("ref")
 
-console.log('token: ', token);
-
-
 async function Main() {
   let dirInfos = await getComponentDirInfos(token, ref);
 

@@ -28812,7 +28812,6 @@ const core = __nccwpck_require__(2186);
 const recoverText = (text) => text.replaceAll(config_1.splitText, '-');
 const token = core.getInput("token");
 const ref = core.getInput("ref");
-console.log('token: ', token);
 function Main() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {

@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 jobs:
-  fetch_docs:
+  update_docs:
     concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
     runs-on: ubuntu-latest
     name: A job to update the docs
@@ -18,22 +18,41 @@ jobs:
         with:
           ref: "output"
           
-      - name: Fetch Docs
+      - name: Fetch docs
+        id: fetch_docs
         uses: jrr997/actions-test@dev
         with:
           ref: "master"
           token: "${{ secrets.GITHUB_TOKEN }}"
 
+      - name: Components Count
+        id: count
+        run: |
+          echo "count=${{ steps.fetch_docs.outputs.count }}" >> $GITHUB_OUTPUT
+          if [ "${{ steps.fetch_docs.outputs.count }}" -lt 161 ]; then
+            echo "Count is less than 50"
+            exit 0
+          fi
+
       - name: Diff
         id: diff
         run: |
             touch docsMap.json
-            cmp docsMap.json dist/docsMap.json
-            echo "::set-output name=diff_result::${?}"
+            cmp --silent docsMap.json dist/docsMap.json
+            echo "diff_result=${?}" >> $GITHUB_OUTPUT
+
+      - name: Exit
+        if: steps.diff.outputs.diff_result == '0'
+        run: 
+          echo "Docs is the same as last time."
+          exit 0
+
+      - name: Before Deploy
+        run: mv dist/docsMap.json docsMap.json
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: ./dist/docsMap.json # The folder the action should deploy.
+          folder: . # The folder the action should deploy.
           branch: output
-        if: steps.diff.outputs.diff_result != '0'
+          clean: true
