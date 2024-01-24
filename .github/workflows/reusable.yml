@@ -58,10 +58,10 @@ jobs:
       #     echo "Docs is the same as last time."
       #     exit 1
 
-      - name: Before Deploy
-        run: |
-          mv dist/docsMap.json docsMap.json
-          rmdir dist
+      # - name: Before Deploy
+      #   run: |
+      #     mv dist/docsMap.json docsMap.json
+      #     rmdir dist
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4

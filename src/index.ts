@@ -47,23 +47,8 @@ async function Main() {
   core.setOutput("count", count);
 
   // write docsMap.json
-  const dirPath = path.join(process.env.GITHUB_WORKSPACE!, 'dist');
-  fs.mkdirSync(dirPath)
-  const filePath = path.join(dirPath, 'docsMap.json');  
+  const filePath = path.join(process.env.GITHUB_WORKSPACE!, 'docsMap.json');  
   fs.writeFileSync(filePath, JSON.stringify(docsMap), 'utf8');
-  console.log(filePath);
-  const child = spawn('ls', ['-al']);
-  child.stdout.on('data', (data) => {
-    console.log(`Command output: ${data}`);
-  });
-
-  child.stderr.on('data', (data) => {
-    console.error(`Command error: ${data}`);
-  });
-
-  child.on('close', (code) => {
-    console.log(`Command exited with code ${code}`);
-  });
 }
 
 if (ref && token) {
