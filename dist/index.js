@@ -28836,8 +28836,8 @@ function Main() {
                 });
             }
         }
-        failDocs.forEach(() => {
-            console.log('failDocs: ', failDocs);
+        failDocs.forEach((item) => {
+            console.log('Fail component: ', item);
         });
         // used to see if this action is working successfully
         const count = Object.keys(docsMap).length;

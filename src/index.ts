@@ -37,8 +37,8 @@ async function Main() {
 
   }
 
-  failDocs.forEach(() => {
-    console.log('failDocs: ', failDocs);
+  failDocs.forEach((item: any) => {
+    console.log('Fail component: ', item);
   })
 
   // used to see if this action is working successfully
