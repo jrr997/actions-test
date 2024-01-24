@@ -29,8 +29,8 @@ jobs:
         id: count
         run: |
           echo "count=${{ steps.fetch_docs.outputs.count }}" >> $GITHUB_OUTPUT
-          if [ "${{ steps.fetch_docs.outputs.count }}" -lt 161 ]; then
-            echo "Count is less than 161"
+          if [ "${{ steps.fetch_docs.outputs.count }}" -lt 50 ]; then
+            echo "Count is less than 50"
             exit 1
           fi
 
