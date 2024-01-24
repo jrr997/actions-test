@@ -12,6 +12,8 @@ jobs:
         from: ["4.x-stable", "master"]
         to: ["output4", "output"]
     uses: jrr997/actions-test/.github/workflows/reusable.yml@dev
+    permissions:
+      contents: write
     with:
       from: ${{ matrix.from }}
       to: ${{ matrix.to }}
