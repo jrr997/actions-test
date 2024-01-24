@@ -9,9 +9,9 @@ on:
       to: 
         required: true
         type: string
-    # secrets:
-    #   GITHUB_TOKEN:
-    #     required: true
+    secrets:
+      token:
+        required: true
 
 permissions:
   contents: write
@@ -32,7 +32,7 @@ jobs:
         uses: jrr997/actions-test@dev
         with:
           ref: "${{ inputs.from }}"
-          token: "${{ secrets.GITHUB_TOKEN }}"
+          token: "${{ secrets.token }}"
 
       - name: Components Count
         id: count

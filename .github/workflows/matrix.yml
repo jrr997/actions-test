@@ -16,4 +16,4 @@ jobs:
       from: ${{ matrix.from }}
       to: ${{ matrix.to }}
     secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      token: ${{ secrets.GITHUB_TOKEN }}
