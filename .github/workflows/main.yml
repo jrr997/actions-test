@@ -27,13 +27,13 @@ jobs:
       - name: Diff
         id: diff
         run: |
-            ls -al
-            cmp output.json dist/output.json
+            touch docsMap.json
+            cmp docsMap.json dist/docsMap.json
             echo "::set-output name=diff_result::${?}"
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: ./dist # The folder the action should deploy.
+          folder: ./dist/docsMap.json # The folder the action should deploy.
           branch: output
         if: steps.diff.outputs.diff_result != '0'
