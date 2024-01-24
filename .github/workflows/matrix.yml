@@ -15,8 +15,7 @@ jobs:
       to: output4
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
-
-jobs:
+      
   update_docs_v5:
     uses: jrr997/actions-test/.github/workflows/reusable.yml@dev
     permissions:
