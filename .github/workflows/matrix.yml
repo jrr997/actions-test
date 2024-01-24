@@ -1,3 +1,4 @@
+name: Call a reusable workflow
 on:
   workflow_dispatch:
 
@@ -10,9 +11,9 @@ jobs:
       matrix:
         from: ["4.x-stable", "master"]
         to: ["output4", "output"]
-      uses: jrr997/actions-test/.github/workflows/reusable.yml@dev
-      with:
-        from: ${{ matrix.from }}
-        to: ${{ matrix.to }}
-      secrets:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    uses: jrr997/actions-test/.github/workflows/reusable.yml@dev
+    with:
+      from: ${{ matrix.from }}
+      to: ${{ matrix.to }}
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
