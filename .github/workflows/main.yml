@@ -30,8 +30,8 @@ jobs:
         run: |
           echo "count=${{ steps.fetch_docs.outputs.count }}" >> $GITHUB_OUTPUT
           if [ "${{ steps.fetch_docs.outputs.count }}" -lt 161 ]; then
-            echo "Count is less than 50"
-            exit 0
+            echo "Count is less than 161"
+            exit 1
           fi
 
       - name: Diff
@@ -45,7 +45,7 @@ jobs:
         if: steps.diff.outputs.diff_result == '0'
         run: 
           echo "Docs is the same as last time."
-          exit 0
+          exit 1
 
       - name: Before Deploy
         run: mv dist/docsMap.json docsMap.json
