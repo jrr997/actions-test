@@ -40,7 +40,7 @@ jobs:
             pwd
             touch docsMap.json
             ls -al
-            cmp docsMap.json ./dist/docsMap.json
+            cmp --silent docsMap.json ./dist/docsMap.json
             echo "diff_result=${?}" >> $GITHUB_OUTPUT
 
       - name: Exit
