@@ -1,0 +1,71 @@
+on:
+  workflow_dispatch:
+
+  workflow_call:
+    inputs:
+      from:
+        required: true
+        type: string
+      to: 
+        required: true
+        type: string
+    secrets:
+      GITHUB_TOKEN:
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  update_docs:
+    concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
+    runs-on: ubuntu-latest
+    name: A job to update the docs
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: "output"
+
+      - name: Fetch docs
+        id: fetch_docs
+        uses: jrr997/actions-test@dev
+        with:
+          ref: "${{ inputs.from }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Components Count
+        id: count
+        run: |
+          echo "count=${{ steps.fetch_docs.outputs.count }}" >> $GITHUB_OUTPUT
+          if [ "${{ steps.fetch_docs.outputs.count }}" -lt 50 ]; then
+            echo "Count is less than 50"
+            exit 1
+          fi
+
+      # - name: Diff
+      #   id: diff
+      #   run: |
+      #       pwd
+      #       touch docsMap.json
+      #       ls -al
+      #       cmp --silent docsMap.json ./dist/docsMap.json
+      #       echo "diff_result=${?}" >> $GITHUB_OUTPUT
+
+      # - name: Exit
+      #   if: steps.diff.outputs.diff_result == '0'
+      #   run:
+      #     echo "Docs is the same as last time."
+      #     exit 1
+
+      - name: Before Deploy
+        run: |
+          mv dist/docsMap.json docsMap.json
+          rmdir dist
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: . # The folder the action should deploy.
+          branch: ${{ inputs.to }}
+          clean: true
