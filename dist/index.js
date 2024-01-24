@@ -28843,8 +28843,9 @@ function Main() {
         const count = Object.keys(docsMap).length;
         core.setOutput("count", count);
         // write docsMap.json
-        const filePath = path.join(process.env.GITHUB_WORKSPACE, 'dist', 'docsMap.json');
-        console.log('filePath', process.env.GITHUB_WORKSPACE, filePath);
+        const dirPath = path.join(__dirname, 'dist');
+        fs.mkdirSync(dirPath);
+        const filePath = path.join(dirPath, 'docsMap.json');
         fs.writeFileSync(filePath, JSON.stringify(docsMap), 'utf8');
     });
 }
