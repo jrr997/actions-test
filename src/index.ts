@@ -47,6 +47,8 @@ async function Main() {
 
   // write docsMap.json
   const filePath = path.join(process.env.GITHUB_WORKSPACE!, 'dist', 'docsMap.json');
+  console.log('filePath', process.env.GITHUB_WORKSPACE, filePath);
+  
   fs.writeFileSync(filePath, JSON.stringify(docsMap), 'utf8');
 
 }
