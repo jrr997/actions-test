@@ -3,6 +3,7 @@ import { getComponentDirInfos, getComponentsDocText } from "./utils";
 import * as fs from 'fs'
 import * as path from 'path'
 import * as core from '@actions/core';
+import { spawn } from 'child_process';
 
 const recoverText = (text: string) => text.replaceAll(splitText, '-');
 
@@ -46,11 +47,23 @@ async function Main() {
   core.setOutput("count", count);
 
   // write docsMap.json
-  const dirPath = path.join(__dirname, 'dist');
+  const dirPath = path.join(process.env.GITHUB_WORKSPACE!, 'dist');
   fs.mkdirSync(dirPath)
   const filePath = path.join(dirPath, 'docsMap.json');  
   fs.writeFileSync(filePath, JSON.stringify(docsMap), 'utf8');
+  console.log(filePath);
+  const child = spawn('ls', ['-al']);
+  child.stdout.on('data', (data) => {
+    console.log(`Command output: ${data}`);
+  });
 
+  child.stderr.on('data', (data) => {
+    console.error(`Command error: ${data}`);
+  });
+
+  child.on('close', (code) => {
+    console.log(`Command exited with code ${code}`);
+  });
 }
 
 if (ref && token) {
