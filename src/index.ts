@@ -46,11 +46,9 @@ async function Main() {
   core.setOutput("count", count);
 
   // write docsMap.json
-  const filePath = path.join(process.env.GITHUB_WORKSPACE!, 'docsMap.json');
+  const filePath = path.join(process.env.GITHUB_WORKSPACE!, 'dist', 'docsMap.json');
   fs.writeFileSync(filePath, JSON.stringify(docsMap), 'utf8');
-  const jsonString = JSON.stringify(docsMap);
-  fs.writeFileSync('./dist/docsMap.json', jsonString, 'utf8');
-  
+
 }
 
 if (ref && token) {
