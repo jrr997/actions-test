@@ -27,7 +27,8 @@ jobs:
       - name: Diff
         id: diff
         run: |
-            cmp --silent output.json dist/output.json
+            ls -al
+            cmp output.json dist/output.json
             echo "::set-output name=diff_result::${?}"
 
       - name: Deploy
