@@ -1,19 +1,17 @@
-name: 'Test Fetching'
-description: 'Test fetching content from other repo'
+name: 'Fetch Docs'
+description: 'Fetch docs and write output.json in workspace.'
 inputs:
-  ref:  # id of input
-    description: 'ref'
-    required: true
-    default: 'World'
   token:
     description: 'github token'
     required: true
     default: ''
+  ref:
+    description: 'github ref'
+    required: true
+    default: ''
 outputs:
-  time: # id of output
-    description: 'The time we greeted you'
-  dir: # id of output
-    description: 'Dir name'
+  count:
+    description: 'The number of components docs'
 runs:
   using: 'node20'
   main: 'dist/index.js'

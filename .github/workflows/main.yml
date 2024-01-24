@@ -1,9 +1,10 @@
 on:
-  push:
-    branches:
-      - dev
+  schedule:
+    - cron: '0 * * * *'
+
 permissions:
   contents: write
+
 jobs:
   fetch_docs:
     concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
@@ -20,9 +21,16 @@ jobs:
         with:
           ref: "master"
           token: "${{ secrets.GITHUB_TOKEN }}"
-          
+
+      - name: Diff
+        id: diff
+        run: |
+            cmp --silent output.json dist/output.json
+            echo "::set-output name=diff_result::${?}"
+
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: . # The folder the action should deploy.
+          folder: ./dist # The folder the action should deploy.
           branch: output
+        if: steps.diff.outputs.diff_result == 0
