@@ -38,7 +38,7 @@ jobs:
         id: diff
         run: |
             touch docsMap.json
-            cmp --silent docsMap.json dist/docsMap.json
+            cmp docsMap.json ./dist/docsMap.json
             echo "diff_result=${?}" >> $GITHUB_OUTPUT
 
       - name: Exit
