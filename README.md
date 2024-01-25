@@ -1,26 +1,26 @@
 # Actions-For-Antd-Docs-VSCode
-Fetch docs from [Ant-Design](https://github.com/ant-design/ant-design) and provide to [Antd-Docs](https://marketplace.visualstudio.com/items?itemName=jrr997.antd-docs).
+Fetch docs from [Ant-Design](https://github.com/ant-design/ant-design) and provide them to [Antd-Docs](https://marketplace.visualstudio.com/items?itemName=jrr997.antd-docs).
 
-## Why this ?
+## Why this?
 
-[Antd-Docs](https://marketplace.visualstudio.com/items?itemName=jrr997.antd-docs) 插件可以让用户在 `VSCode` 中查看 `ant-design` 组件库的文档，其原理是：
+The [Antd-Docs](https://marketplace.visualstudio.com/items?itemName=jrr997.antd-docs) plugin allows users to view the documentation of the `ant-design` component library in `VSCode`. Its principles are as follows:
 
-1. 利用 github rest api 获取文档。
-2. 用户在 hover 某个组件时展示对应的文档。
+1. Use the GitHub REST API to fetch documentation.
+2. Display corresponding documentation when a user hovers over a specific component.
 
-使用 github api 需要用户在插件中配置 `github token`，这使得插件无法开箱即用。更棘手的一点是，`ant-design` 对 `PAT token` 做了限制：`PAT token` 无法通过 github api 获取 `ant-design` 的文件内容，必须是其他 token。
+Using the GitHub API requires users to configure a `GitHub token` in the plugin, making it not ready to use out of the box. A more challenging aspect is that `ant-design` restricts `PAT tokens`: `PAT tokens` cannot retrieve the content of `ant-design` files through the GitHub API.
 
-后来想到了一个解决方法：fork `ant-design` 仓库，插件从 forked 的仓库获取文档，这样 `PAT token` 就能用 github api 获取文档。这个方法并不完美，因为还要定时 sync upstream，可以利用 github actions 来自动化这个操作。
+Later, a solution was thought of: fork the `ant-design` repository, and the plugin fetches documentation from the forked repository. This way, the `PAT token` can be used to obtain documentation through the GitHub API. While this method is not perfect because it still requires periodically syncing with the upstream repository, GitHub Actions can automate this process.
 
-既然都上 github actions 了，干脆把获取文档这个步骤也做到 actions 里，这样做的另一个好处是用户使用插件时不再需要配置 token。这个仓库做的就是这个事情。
+Since GitHub Actions are already in use, it makes sense to incorporate the documentation retrieval step into the actions. Another benefit is that users no longer need to configure a token when using the plugin. That's precisely what this repository does.
 
-## Branch
+## Branches
 
-main 分支：workflow 源码和产物。定期执行 workflow 更新文档，并把文档推送到 output 分支。
-output 分支：分为 output4 和 output5，分别存储 antd4 和 5 的文档。
+- **main branch:** Workflow source code and artifacts. Executes the workflow periodically to update the documentation and push it to the output branch.
+- **output branch:** Divided into `output4` and `output`, storing documentation for antd4 and 5, respectively.
 
-## QuackStart
+## Quick Start
 
-1. Clone this repository and checkout from branch `main`.
-2. Run `npm install`.
-3. 
+1. Clone this repository and checkout from the `main` branch.
+2. Run `pnpm install`.
+3. Make sure to run `pnpm run build` if you modify files in the `src` directory.
