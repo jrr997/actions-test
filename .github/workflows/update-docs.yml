@@ -7,7 +7,7 @@ on:
 
 jobs:
   update_docs_v4:
-    uses: jrr997/actions-test/.github/workflows/reusable.yml@dev
+    uses: jrr997/actions-test/.github/workflows/update-branch.yml@dev
     permissions:
       contents: write
     with:
@@ -17,7 +17,7 @@ jobs:
       token: ${{ secrets.GITHUB_TOKEN }}
       
   update_docs_v5:
-    uses: jrr997/actions-test/.github/workflows/reusable.yml@dev
+    uses: jrr997/actions-test/.github/workflows/update-branch.yml@dev
     permissions:
       contents: write
     with:
